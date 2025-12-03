@@ -52,6 +52,16 @@
                <option value="Biography" {% if book.category == 'Biography' %}selected{% endif %}>Biography</option>
                <option value="Self-Help" {% if book.category == 'Self-Help' %}selected{% endif %}>Self-Help</option>
                <option value="Romance" {% if book.category == 'Romance' %}selected{% endif %}>Romance</option>
+               <option value="Manga" {% if book.category == 'Manga' %}selected{% endif %}>Manga</option>
+               <option value="Comics" {% if book.category == 'Comics' %}selected{% endif %}>Comics</option>
+               <option value="Horror" {% if book.category == 'Horror' %}selected{% endif %}>Horror</option>
+               <option value="Thriller" {% if book.category == 'Thriller' %}selected{% endif %}>Thriller</option>
+               <option value="Adventure" {% if book.category == 'Adventure' %}selected{% endif %}>Adventure</option>
+               <option value="Young Adult" {% if book.category == 'Young Adult' %}selected{% endif %}>Young Adult</option>
+               <option value="Children" {% if book.category == 'Children' %}selected{% endif %}>Children</option>
+               <option value="Poetry" {% if book.category == 'Poetry' %}selected{% endif %}>Poetry</option>
+               <option value="Drama" {% if book.category == 'Drama' %}selected{% endif %}>Drama</option>
+               <option value="Action" {% if book.category == 'Action' %}selected{% endif %}>Action</option>
            </select>
        </div>
        <button type="submit" class="btn btn-success">Save Changes</button>

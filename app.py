@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import inspect
 
 app = Flask(__name__)
 
@@ -69,8 +70,28 @@ def delete_book(id):
    db.session.commit()
    return redirect(url_for('index'))
 
+def add_missing_columns():
+   """Add any missing columns to the database"""
+   with app.app_context():
+       # Get the current table structure
+       inspector = db.inspect(db.engine)
+       columns = [column['name'] for column in inspector.get_columns('book')]
+
+       # Add rating column if it doesn't exist
+       if 'rating' not in columns:
+           print("Adding missing 'rating' column...")
+           db.session.execute(db.text("ALTER TABLE book ADD COLUMN rating INTEGER DEFAULT 0"))
+           db.session.commit()
+
+       # Add category column if it doesn't exist
+       if 'category' not in columns:
+           print("Adding missing 'category' column...")
+           db.session.execute(db.text("ALTER TABLE book ADD COLUMN category TEXT DEFAULT 'General'"))
+           db.session.commit()
+
 # Initialize DB and Run
 if __name__ == "__main__":
    with app.app_context():
        db.create_all()
+       add_missing_columns()  # Add missing columns if needed
    app.run(debug=True)
