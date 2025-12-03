@@ -1,0 +1,85 @@
+{% for book in books %}
+<div class="card book-item" data-id="{{ book.id }}">
+    <div class="book-cover position-relative">
+        {% if book.cover_image %}
+            <img src="{{ book.cover_image }}" alt="Cover for {{ book.title }}">
+        {% else %}
+            <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                <i class="fas fa-book fa-3x text-muted"></i>
+                <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-50 text-white p-2 text-center">
+                    {{ book.title[:20] }}{% if book.title|length > 20 %}...{% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="book-info">
+        <h5 class="book-title">{{ book.title }}</h5>
+        <p class="book-author">by {{ book.author }}</p>
+
+        <div class="d-flex justify-content-between mb-2">
+            <span class="badge bg-secondary">{{ book.format }}</span>
+            <div class="rating-container">
+                <div class="rating-stars">
+                    {% for i in range(book.rating) %}★{% endfor %}
+                    {% for i in range(5 - book.rating) %}☆{% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-2">
+            <span class="status-badge
+                {% if book.status == 'To Read' %}bg-warning text-dark
+                {% elif book.status == 'Reading' %}bg-info text-dark
+                {% elif book.status == 'Finished' %}bg-success text-white
+                {% endif %}">
+                {{ book.status }}
+            </span>
+            <span class="badge bg-primary ms-1">{{ book.category }}</span>
+        </div>
+
+        {% if book.total_pages > 0 %}
+        <div class="mb-2">
+            <div class="progress mb-1" style="height: 8px;">
+                <div class="progress-bar bg-info" role="progressbar"
+                     style="width: {{ (book.pages_read|float / book.total_pages * 100)|round(1) }}%"
+                     aria-valuenow="{{ (book.pages_read|float / book.total_pages * 100)|round(1) }}"
+                     aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <small class="text-muted">Progress: {{ book.pages_read }}/{{ book.total_pages }} pages ({{ (book.pages_read|float / book.total_pages * 100)|round(1) }}%)</small>
+        </div>
+        {% endif %}
+
+        {% if book.notes %}
+        <div class="mb-2">
+            <small class="text-muted">
+                <i class="fas fa-sticky-note me-1"></i>
+                {{ book.notes[:60] }}{% if book.notes|length > 60 %}...{% endif %}
+            </small>
+        </div>
+        {% endif %}
+
+        <div class="mt-auto pt-2">
+            <div class="d-flex gap-2">
+                <a href="/update/{{ book.id }}" class="btn btn-sm btn-outline-primary flex-grow-1">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+                <a href="/delete/{{ book.id }}" class="btn btn-sm btn-outline-danger flex-grow-1">
+                    <i class="fas fa-trash me-1"></i>Delete
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% if pagination.has_next %}
+<button id="load-more-btn" class="btn btn-primary mx-auto d-block" data-page="{{ pagination.next_num }}"
+        data-search="{{ request.args.get('search', '') }}"
+        data-genre="{{ request.args.get('genre', '') }}"
+        data-rating="{{ request.args.get('rating', '') }}"
+        data-format="{{ request.args.get('format', '') }}"
+        data-sort="{{ request.args.get('sort', '') }}"
+        data-order="{{ request.args.get('order', '') }}">
+    Load More
+</button>
+{% endif %}

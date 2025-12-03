@@ -1,102 +1,658 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- SEARCH BAR -->
-<div class="card p-4 shadow-sm mb-4">
-   <form method="GET" class="row g-3">
-       <div class="col-md-8">
-           <input type="text" name="search" class="form-control" placeholder="Search by title or author..." value="{{ search_query }}">
-       </div>
-       <div class="col-md-2">
-           <button type="submit" class="btn btn-outline-primary w-100">Search</button>
-       </div>
-       <div class="col-md-2">
-           <a href="/" class="btn btn-outline-secondary w-100">Clear</a>
-       </div>
-   </form>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-book-open me-2"></i>Your Library</h2>
+    <div class="text-end">
+        <span class="badge bg-primary fs-6">{{ pagination.total }} book{% if pagination.total != 1 %}s{% endif %}</span>
+    </div>
+</div>
+
+<!-- Advanced Search and Filter Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <!-- Search Input -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <input type="text" name="search" class="form-control" placeholder="Search by title or author..." value="{{ search_query }}">
+            </div>
+
+            <!-- Genre Filter -->
+            <div class="col-6 col-md-3 col-lg-2">
+                <select name="genre" class="form-select">
+                    <option value="">All Genres</option>
+                    <option value="all" {% if genre_filter == 'all' %}selected{% endif %}>All Genres</option>
+                    {% for category in all_categories %}
+                    <option value="{{ category }}" {% if genre_filter == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Rating Filter -->
+            <div class="col-6 col-md-3 col-lg-2">
+                <select name="rating" class="form-select">
+                    <option value="">All Ratings</option>
+                    <option value="all" {% if rating_filter == 'all' %}selected{% endif %}>All Ratings</option>
+                    <option value="5" {% if rating_filter == '5' %}selected{% endif %}>★★★★★ 5 Stars</option>
+                    <option value="4" {% if rating_filter == '4' %}selected{% endif %}>★★★★ 4 Stars</option>
+                    <option value="3" {% if rating_filter == '3' %}selected{% endif %}>★★★ 3 Stars</option>
+                    <option value="2" {% if rating_filter == '2' %}selected{% endif %}>★★ 2 Stars</option>
+                    <option value="1" {% if rating_filter == '1' %}selected{% endif %}>★ 1 Star</option>
+                    <option value="0" {% if rating_filter == '0' %}selected{% endif %}>☆ No Rating</option>
+                </select>
+            </div>
+
+            <!-- Format Filter -->
+            <div class="col-6 col-md-3 col-lg-2">
+                <select name="format" class="form-select">
+                    <option value="">All Formats</option>
+                    <option value="all" {% if format_filter == 'all' %}selected{% endif %}>All Formats</option>
+                    {% for format in all_formats %}
+                    <option value="{{ format }}" {% if format_filter == format %}selected{% endif %}>{{ format }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Sort Options -->
+            <div class="col-6 col-md-3 col-lg-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100 me-2">Apply</button>
+                <a href="/" class="btn btn-outline-secondary w-100">Clear</a>
+            </div>
+
+            <!-- Sorting Controls -->
+            <div class="col-12 mt-3">
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <label class="text-muted">Sort by:</label>
+                    <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if rating_filter %}rating={{ rating_filter }}&{% endif %}{% if format_filter %}format={{ format_filter }}&{% endif %}sort=title&order={% if sort_by == 'title' and sort_order == 'asc' %}desc{% else %}asc{% endif %}"
+                       class="btn btn-sm {% if sort_by == 'title' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        Title {% if sort_by == 'title' %}{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                    </a>
+                    <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if rating_filter %}rating={{ rating_filter }}&{% endif %}{% if format_filter %}format={{ format_filter }}&{% endif %}sort=author&order={% if sort_by == 'author' and sort_order == 'asc' %}desc{% else %}asc{% endif %}"
+                       class="btn btn-sm {% if sort_by == 'author' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        Author {% if sort_by == 'author' %}{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                    </a>
+                    <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if rating_filter %}rating={{ rating_filter }}&{% endif %}{% if format_filter %}format={{ format_filter }}&{% endif %}sort=rating&order={% if sort_by == 'rating' and sort_order == 'asc' %}desc{% else %}asc{% endif %}"
+                       class="btn btn-sm {% if sort_by == 'rating' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        Rating {% if sort_by == 'rating' %}{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                    </a>
+                    <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if rating_filter %}rating={{ rating_filter }}&{% endif %}{% if format_filter %}format={{ format_filter }}&{% endif %}sort=date&order={% if sort_by == 'date' and sort_order == 'asc' %}desc{% else %}asc{% endif %}"
+                       class="btn btn-sm {% if sort_by == 'date' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        Date {% if sort_by == 'date' %}{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                    </a>
+                    <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if rating_filter %}rating={{ rating_filter }}&{% endif %}{% if format_filter %}format={{ format_filter }}&{% endif %}sort=status&order={% if sort_by == 'status' and sort_order == 'asc' %}desc{% else %}asc{% endif %}"
+                       class="btn btn-sm {% if sort_by == 'status' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        Status {% if sort_by == 'status' %}{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- ADD NEW ITEM CARD -->
-<div class="card p-4 shadow-sm mb-5">
-   <h4>Add New Item</h4>
-   <form action="/add" method="POST" class="row g-3">
-       <div class="col-md-3">
-           <input type="text" name="title" class="form-control" placeholder="Title" required>
-       </div>
-       <div class="col-md-2">
-           <input type="text" name="author" class="form-control" placeholder="Author" required>
-       </div>
-       <div class="col-md-2">
-           <select name="format" class="form-select">
-               <option value="Physical">📖 Physical Book</option>
-               <option value="E-Book">📱 E-Book</option>
-               <option value="Audiobook">🎧 Audiobook</option>
-           </select>
-       </div>
-       <div class="col-md-2">
-           <select name="rating" class="form-select">
-               <option value="0">☆ No Rating</option>
-               <option value="1">★ 1 Star</option>
-               <option value="2">★★ 2 Stars</option>
-               <option value="3">★★★ 3 Stars</option>
-               <option value="4">★★★★ 4 Stars</option>
-               <option value="5">★★★★★ 5 Stars</option>
-           </select>
-       </div>
-       <div class="col-md-2">
-           <select name="category" class="form-select">
-               <option value="General">General</option>
-               <option value="Fiction">Fiction</option>
-               <option value="Non-Fiction">Non-Fiction</option>
-               <option value="Mystery">Mystery</option>
-               <option value="Sci-Fi">Sci-Fi</option>
-               <option value="Fantasy">Fantasy</option>
-               <option value="History">History</option>
-               <option value="Biography">Biography</option>
-               <option value="Self-Help">Self-Help</option>
-               <option value="Romance">Romance</option>
-               <option value="Manga">Manga</option>
-               <option value="Comics">Comics</option>
-               <option value="Horror">Horror</option>
-               <option value="Thriller">Thriller</option>
-               <option value="Adventure">Adventure</option>
-               <option value="Young Adult">Young Adult</option>
-               <option value="Children">Children</option>
-               <option value="Poetry">Poetry</option>
-               <option value="Drama">Drama</option>
-               <option value="Action">Action</option>
-           </select>
-       </div>
-       <div class="col-md-1">
-           <button type="submit" class="btn btn-primary w-100">Add</button>
-       </div>
-   </form>
+<div class="card mb-5">
+    <div class="card-header">
+        <i class="fas fa-plus me-2"></i>Add New Book
+    </div>
+    <div class="card-body">
+        <!-- Google Books API Search Section -->
+        <div class="row mb-4">
+            <div class="col-md-10">
+                <input type="text" id="api-search-input" class="form-control" placeholder="Search by title, author, ISBN...">
+            </div>
+            <div class="col-md-2">
+                <button id="api-search-btn" class="btn btn-outline-primary w-100">Search</button>
+            </div>
+        </div>
+
+        <!-- ISBN Search Section -->
+        <div class="row mb-4">
+            <div class="col-md-10">
+                <input type="text" id="isbn-search-input" class="form-control" placeholder="Enter ISBN (barcode) to auto-populate book details...">
+            </div>
+            <div class="col-md-2">
+                <button id="isbn-search-btn" class="btn btn-outline-success w-100">Scan ISBN</button>
+            </div>
+        </div>
+
+        <!-- API Search Results -->
+        <div id="api-search-results" class="mb-4" style="display: none;">
+            <h6>Search Results:</h6>
+            <div class="row" id="search-results-container"></div>
+        </div>
+
+        <!-- Add Book Form -->
+        <form id="add-book-form" action="/add" method="POST">
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <input type="text" name="title" id="title-input" class="form-control" placeholder="Title" required>
+                </div>
+                <div class="col-12 col-md-3">
+                    <input type="text" name="author" id="author-input" class="form-control" placeholder="Author" required>
+                </div>
+                <div class="col-6 col-md-2">
+                    <select name="format" id="format-input" class="form-select">
+                        <option value="Physical">📖 Physical</option>
+                        <option value="E-Book">📱 E-Book</option>
+                        <option value="Audiobook">🎧 Audiobook</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-1">
+                    <select name="rating" id="rating-input" class="form-select">
+                        <option value="0">☆</option>
+                        <option value="1">★</option>
+                        <option value="2">★★</option>
+                        <option value="3">★★★</option>
+                        <option value="4">★★★★</option>
+                        <option value="5">★★★★★</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="genre-dropdown-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                            Select Genres
+                        </button>
+                        <div class="dropdown-menu w-100" id="genre-dropdown-menu" style="max-height: 300px; overflow-y: auto;">
+                            <div class="px-3 py-2">
+                                <input class="form-check-input me-2" type="checkbox" value="Fiction" id="genre-1"><label class="form-check-label" for="genre-1">Fiction</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Non-Fiction" id="genre-2"><label class="form-check-label" for="genre-2">Non-Fiction</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Mystery" id="genre-3"><label class="form-check-label" for="genre-3">Mystery</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Sci-Fi" id="genre-4"><label class="form-check-label" for="genre-4">Sci-Fi</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Fantasy" id="genre-5"><label class="form-check-label" for="genre-5">Fantasy</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="History" id="genre-6"><label class="form-check-label" for="genre-6">History</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Biography" id="genre-7"><label class="form-check-label" for="genre-7">Biography</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Self-Help" id="genre-8"><label class="form-check-label" for="genre-8">Self-Help</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Romance" id="genre-9"><label class="form-check-label" for="genre-9">Romance</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Manga" id="genre-10"><label class="form-check-label" for="genre-10">Manga</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Comics" id="genre-11"><label class="form-check-label" for="genre-11">Comics</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Horror" id="genre-12"><label class="form-check-label" for="genre-12">Horror</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Thriller" id="genre-13"><label class="form-check-label" for="genre-13">Thriller</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Adventure" id="genre-14"><label class="form-check-label" for="genre-14">Adventure</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Young Adult" id="genre-15"><label class="form-check-label" for="genre-15">Young Adult</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Children" id="genre-16"><label class="form-check-label" for="genre-16">Children</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Poetry" id="genre-17"><label class="form-check-label" for="genre-17">Poetry</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Drama" id="genre-18"><label class="form-check-label" for="genre-18">Drama</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="Action" id="genre-19"><label class="form-check-label" for="genre-19">Action</label><br>
+                                <input class="form-check-input me-2" type="checkbox" value="General" id="genre-20"><label class="form-check-label" for="genre-20">General</label><br>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="genres" id="genres-input">
+                    <small class="form-text text-muted">Select multiple genres</small>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <input type="number" name="total_pages" id="total-pages-input" class="form-control" placeholder="Total Pages">
+                </div>
+                <div class="col-6 col-md-3">
+                    <input type="number" name="pages_read" id="pages-read-input" class="form-control" placeholder="Pages Read" value="0">
+                </div>
+                <div class="col-12 col-md-6">
+                    <input type="url" name="cover_image" id="cover-image-input" class="form-control" placeholder="Cover Image URL">
+                </div>
+                <div class="col-12">
+                    <textarea name="notes" id="notes-input" class="form-control" placeholder="Notes/Reviews"></textarea>
+                </div>
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary w-100">Add Book</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- LIBRARY LIST -->
-<div class="list-group">
-   {% for book in books %}
-   <div class="list-group-item d-flex justify-content-between align-items-center">
-       <div>
-           <h5 class="mb-1">
-               {% if book.format == 'Physical' %}📖
-               {% elif book.format == 'E-Book' %}📱
-               {% elif book.format == 'Audiobook' %}🎧
-               {% endif %}
-               {{ book.title }}
-           </h5>
-           <small class="text-muted">
-               by {{ book.author }} |
-               Status: {{ book.status }} |
-               {% for i in range(book.rating) %}★{% endfor %}{% for i in range(5 - book.rating) %}☆{% endfor %} |
-               Category: {{ book.category }}
-           </small>
-       </div>
-       <div>
-           <a href="/update/{{ book.id }}" class="btn btn-sm btn-outline-secondary">Edit</a>
-           <a href="/delete/{{ book.id }}" class="btn btn-sm btn-danger">Delete</a>
-       </div>
-   </div>
-   {% endfor %}
+<!-- BOOK GRID -->
+<div id="book-grid" class="book-grid">
+    {% for book in books %}
+    <div class="card book-item" data-id="{{ book.id }}">
+        <div class="book-cover position-relative">
+            {% if book.cover_image %}
+                <img src="{{ book.cover_image }}" alt="Cover for {{ book.title }}">
+            {% else %}
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                    <i class="fas fa-book fa-3x text-muted"></i>
+                    <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-50 text-white p-2 text-center">
+                        {{ book.title[:20] }}{% if book.title|length > 20 %}...{% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="book-info">
+            <h5 class="book-title">{{ book.title }}</h5>
+            <p class="book-author">by {{ book.author }}</p>
+
+            <div class="d-flex justify-content-between mb-2">
+                <span class="badge bg-secondary">{{ book.format }}</span>
+                <div class="rating-container">
+                    <div class="rating-stars">
+                        {% for i in range(book.rating) %}★{% endfor %}
+                        {% for i in range(5 - book.rating) %}☆{% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <span class="status-badge
+                    {% if book.status == 'To Read' %}bg-warning text-dark
+                    {% elif book.status == 'Reading' %}bg-info text-dark
+                    {% elif book.status == 'Finished' %}bg-success text-white
+                    {% endif %}">
+                    {{ book.status }}
+                </span>
+                {% for genre in book.genres %}
+                <span class="badge bg-primary ms-1">{{ genre.name }}</span>
+                {% endfor %}
+            </div>
+
+            {% if book.total_pages > 0 %}
+            <div class="mb-2">
+                <div class="progress mb-1" style="height: 8px;">
+                    <div class="progress-bar bg-info" role="progressbar"
+                         style="width: {{ (book.pages_read|float / book.total_pages * 100)|round(1) }}%"
+                         aria-valuenow="{{ (book.pages_read|float / book.total_pages * 100)|round(1) }}"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted">Progress: {{ book.pages_read }}/{{ book.total_pages }} pages ({{ (book.pages_read|float / book.total_pages * 100)|round(1) }}%)</small>
+            </div>
+            {% endif %}
+
+            {% if book.notes %}
+            <div class="mb-2">
+                <small class="text-muted">
+                    <i class="fas fa-sticky-note me-1"></i>
+                    {{ book.notes[:60] }}{% if book.notes|length > 60 %}...{% endif %}
+                </small>
+            </div>
+            {% endif %}
+
+            <div class="mt-auto pt-2">
+                <div class="d-flex gap-2">
+                    <a href="/update/{{ book.id }}" class="btn btn-sm btn-outline-primary flex-grow-1">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                    <a href="/delete/{{ book.id }}" class="btn btn-sm btn-outline-danger flex-grow-1">
+                        <i class="fas fa-trash me-1"></i>Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>
+
+<!-- Load More Button -->
+<div id="load-more-container" class="text-center my-4">
+    {% if pagination.has_next %}
+        <button id="load-more-btn" class="btn btn-primary" data-page="{{ pagination.next_num }}"
+                data-search="{{ search_query }}"
+                data-genre="{{ genre_filter }}"
+                data-rating="{{ rating_filter }}"
+                data-format="{{ format_filter }}"
+                data-sort="{{ sort_by }}"
+                data-order="{{ sort_order }}">
+            Load More
+        </button>
+    {% endif %}
+</div>
+
+{% if books|length == 0 %}
+<div class="text-center py-5">
+    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+    <h4 class="text-muted">No books found</h4>
+    <p class="text-muted">Try adjusting your search or add a new book to your collection</p>
+</div>
+{% endif %}
+
+<!-- Pagination -->
+{% if pagination.pages > 1 %}
+<nav aria-label="Books pagination">
+    <ul class="pagination justify-content-center">
+        {% if pagination.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('index', page=pagination.prev_num, search=search_query, genre=genre_filter, rating=rating_filter, format=format_filter, sort=sort_by, order=sort_order) }}">Previous</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
+        {% endif %}
+
+        {% for page_num in pagination.iter_pages() %}
+            {% if page_num %}
+                {% if page_num != pagination.page %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('index', page=page_num, search=search_query, genre=genre_filter, rating=rating_filter, format=format_filter, sort=sort_by, order=sort_order) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_num }}</span>
+                    </li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">…</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagination.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('index', page=pagination.next_num, search=search_query, genre=genre_filter, rating=rating_filter, format=format_filter, sort=sort_by, order=sort_order) }}">Next</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Next</span>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!-- Export link -->
+<div class="mt-4 text-center">
+    <a href="{{ url_for('export_data') }}" class="btn btn-outline-success">
+        <i class="fas fa-file-export me-1"></i>Export Collection
+    </a>
+</div>
+
+<script>
+    // Add lazy loading functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                const page = parseInt(this.getAttribute('data-page'));
+                const search = this.getAttribute('data-search');
+                const genre = this.getAttribute('data-genre');
+                const rating = this.getAttribute('data-rating');
+                const format = this.getAttribute('data-format');
+                const sort = this.getAttribute('data-sort');
+                const order = this.getAttribute('data-order');
+
+                // Show loading indicator
+                this.innerHTML = 'Loading...';
+                this.disabled = true;
+
+                // Build query string
+                let queryString = `?page=${page}`;
+                if (search) queryString += `&search=${encodeURIComponent(search)}`;
+                if (genre) queryString += `&genre=${encodeURIComponent(genre)}`;
+                if (rating) queryString += `&rating=${encodeURIComponent(rating)}`;
+                if (format) queryString += `&format=${encodeURIComponent(format)}`;
+                if (sort) queryString += `&sort=${encodeURIComponent(sort)}`;
+                if (order) queryString += `&order=${encodeURIComponent(order)}`;
+
+                // Make AJAX request
+                fetch(queryString)
+                    .then(response => response.text())
+                    .then(html => {
+                        // Parse the HTML to extract new book items
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newBooks = doc.querySelectorAll('#book-grid .book-item');
+
+                        // Add new books to the grid
+                        const bookGrid = document.getElementById('book-grid');
+                        newBooks.forEach(book => {
+                            bookGrid.appendChild(book);
+                        });
+
+                        // Update the load more button
+                        const newLoadMoreBtn = doc.querySelector('#load-more-btn');
+                        const loadMoreContainer = document.getElementById('load-more-container');
+
+                        if (newLoadMoreBtn) {
+                            // Update the existing button with new data
+                            loadMoreBtn.setAttribute('data-page', newLoadMoreBtn.getAttribute('data-page'));
+                            loadMoreBtn.innerHTML = 'Load More';
+                            loadMoreBtn.disabled = false;
+                        } else {
+                            // No more books to load
+                            loadMoreContainer.innerHTML = '<p class="text-muted">No more books to load</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading more books:', error);
+                        loadMoreBtn.innerHTML = 'Load More';
+                        loadMoreBtn.disabled = false;
+                    });
+            });
+        }
+
+        // Implement infinite scroll as an alternative
+        let loading = false;
+        window.addEventListener('scroll', function() {
+            if (loading) return;
+
+            const scrollPosition = window.innerHeight + window.scrollY;
+            const pageHeight = document.documentElement.scrollHeight;
+
+            // Load more when user scrolls to 80% of the page
+            if (scrollPosition >= pageHeight * 0.8) {
+                const btn = document.getElementById('load-more-btn');
+                if (btn && !btn.disabled) {
+                    btn.click();
+                }
+            }
+        });
+
+        // Google Books API search functionality
+        const apiSearchBtn = document.getElementById('api-search-btn');
+        const apiSearchInput = document.getElementById('api-search-input');
+        const apiSearchResults = document.getElementById('api-search-results');
+        const searchResultsContainer = document.getElementById('search-results-container');
+
+        if (apiSearchBtn && apiSearchInput) {
+            apiSearchBtn.addEventListener('click', function() {
+                const query = apiSearchInput.value.trim();
+                if (query) {
+                    // Show loading indicator
+                    apiSearchBtn.innerHTML = 'Loading...';
+                    apiSearchBtn.disabled = true;
+
+                    // Call the API
+                    fetch(`/api/search?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            searchResultsContainer.innerHTML = '';
+
+                            if (data.books && data.books.length > 0) {
+                                data.books.forEach(book => {
+                                    const bookCard = document.createElement('div');
+                                    bookCard.className = 'col-md-6 col-lg-4 mb-3';
+                                    bookCard.innerHTML = `
+                                        <div class="card h-100">
+                                            ${book.cover_url ? `<img src="${book.cover_url}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Cover for ${book.title}">` : `<div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;"><i class="fas fa-book fa-3x text-muted"></i></div>`}
+                                            <div class="card-body d-flex flex-column">
+                                                <h6 class="card-title">${book.title.length > 50 ? book.title.substring(0, 50) + '...' : book.title}</h6>
+                                                <p class="card-text"><small class="text-muted">by ${book.author.length > 30 ? book.author.substring(0, 30) + '...' : book.author}</small></p>
+                                                ${book.description ? `<p class="card-text"><small>${book.description.length > 100 ? book.description.substring(0, 100) + '...' : book.description}</small></p>` : ''}
+                                                <div class="mt-auto">
+                                                    <button class="btn btn-sm btn-success w-100 import-book"
+                                                            data-title="${book.title.replace(/"/g, '&quot;')}"
+                                                            data-author="${book.author.replace(/"/g, '&quot;')}"
+                                                            data-category="${book.categories && book.categories.length > 0 ? book.categories[0] : 'General'}"
+                                                            data-pages="${book.page_count}"
+                                                            data-cover="${book.cover_url}"
+                                                            data-description="${(book.description || '').replace(/"/g, '&quot;')}">
+                                                        Import Book
+                                                    </button>
+                                                    ${book.preview_url ? `<a href="${book.preview_url}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mt-1">Preview</a>` : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                    searchResultsContainer.appendChild(bookCard);
+                                });
+
+                                // Add event listeners to import buttons
+                                document.querySelectorAll('.import-book').forEach(button => {
+                                    button.addEventListener('click', function() {
+                                        // Fill the form fields with the book data
+                                        document.getElementById('title-input').value = this.getAttribute('data-title');
+                                        document.getElementById('author-input').value = this.getAttribute('data-author');
+                                        document.getElementById('total-pages-input').value = this.getAttribute('data-pages') || '';
+                                        document.getElementById('cover-image-input').value = this.getAttribute('data-cover') || '';
+                                        document.getElementById('notes-input').value = this.getAttribute('data-description') || '';
+
+                                        // Handle genres selection - set the selected genres from the API
+                                        const categories = this.getAttribute('data-category').split(',');
+                                        const genreDropdownMenu = document.getElementById('genre-dropdown-menu');
+                                        const genreInputs = genreDropdownMenu.querySelectorAll('input[type="checkbox"]');
+
+                                        // Clear all current selections
+                                        genreInputs.forEach(input => {
+                                            input.checked = false;
+                                        });
+
+                                        // Select the matching genres from the API result
+                                        categories.forEach(cat => {
+                                            if (cat.trim() !== '') {
+                                                genreInputs.forEach(input => {
+                                                    if (input.value === cat.trim()) {
+                                                        input.checked = true;
+                                                        // Trigger the change event to update the hidden input
+                                                        input.dispatchEvent(new Event('change'));
+                                                    }
+                                                });
+                                            }
+                                        });
+
+                                        // Scroll to the form
+                                        document.getElementById('add-book-form').scrollIntoView({ behavior: 'smooth' });
+                                    });
+                                });
+
+                                apiSearchResults.style.display = 'block';
+                            } else {
+                                searchResultsContainer.innerHTML = '<p class="text-muted">No books found. Try another search term.</p>';
+                                apiSearchResults.style.display = 'block';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error searching Google Books API:', error);
+                            searchResultsContainer.innerHTML = '<p class="text-danger">Error searching for books. Please try again later.</p>';
+                            apiSearchResults.style.display = 'block';
+                        })
+                        .finally(() => {
+                            apiSearchBtn.innerHTML = 'Search';
+                            apiSearchBtn.disabled = false;
+                        });
+                }
+            });
+        }
+
+        // ISBN search functionality
+        const isbnSearchBtn = document.getElementById('isbn-search-btn');
+        const isbnSearchInput = document.getElementById('isbn-search-input');
+
+        if (isbnSearchBtn && isbnSearchInput) {
+            isbnSearchBtn.addEventListener('click', function() {
+                const isbn = isbnSearchInput.value.trim();
+                if (isbn) {
+                    // Show loading indicator
+                    isbnSearchBtn.innerHTML = 'Loading...';
+                    isbnSearchBtn.disabled = true;
+
+                    // Call the ISBN API
+                    fetch(`/api/search/isbn?isbn=${encodeURIComponent(isbn)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.books && data.books.length > 0) {
+                                const book = data.books[0]; // Take the first result
+
+                                // Fill the form fields with the book data
+                                document.getElementById('title-input').value = book.title;
+                                document.getElementById('author-input').value = book.author;
+                                document.getElementById('total-pages-input').value = book.page_count || '';
+                                document.getElementById('cover-image-input').value = book.cover_url || '';
+                                document.getElementById('notes-input').value = book.description || '';
+
+                                // Show success message
+                                const alertDiv = document.createElement('div');
+                                alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+                                alertDiv.role = 'alert';
+                                alertDiv.innerHTML = `Book found: <strong>${book.title}</strong> by ${book.author}. Form has been populated.`;
+                                document.querySelector('#add-book-form .row.g-3').prepend(alertDiv);
+
+                                // Auto-hide the success message after 5 seconds
+                                setTimeout(() => {
+                                    alertDiv.remove();
+                                }, 5000);
+
+                                // Scroll to the form
+                                document.getElementById('add-book-form').scrollIntoView({ behavior: 'smooth' });
+                            } else {
+                                // Show error message
+                                const alertDiv = document.createElement('div');
+                                alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                                alertDiv.role = 'alert';
+                                alertDiv.innerHTML = 'No book found with that ISBN. Please try again.';
+                                document.querySelector('#add-book-form .row.g-3').prepend(alertDiv);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error searching ISBN:', error);
+                            // Show error message
+                            const alertDiv = document.createElement('div');
+                            alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                            alertDiv.role = 'alert';
+                            alertDiv.innerHTML = 'Error searching for ISBN. Please try again.';
+                            document.querySelector('#add-book-form .row.g-3').prepend(alertDiv);
+                        })
+                        .finally(() => {
+                            isbnSearchBtn.innerHTML = 'Scan ISBN';
+                            isbnSearchBtn.disabled = false;
+                        });
+                }
+            });
+        }
+
+        // Enable Enter key in search fields
+        if (apiSearchInput) {
+            apiSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    apiSearchBtn.click();
+                }
+            });
+        }
+
+        if (isbnSearchInput) {
+            isbnSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    isbnSearchBtn.click();
+                }
+            });
+        }
+
+        // Multi-select genre dropdown functionality
+        const genreCheckboxes = document.querySelectorAll('#genre-dropdown-menu input[type="checkbox"]');
+        const genresInput = document.getElementById('genres-input');
+        const genreDropdownBtn = document.getElementById('genre-dropdown-btn');
+
+        genreCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Get all selected genres
+                const selectedGenres = [];
+                genreCheckboxes.forEach(cb => {
+                    if (cb.checked) {
+                        selectedGenres.push(cb.value);
+                    }
+                });
+
+                // Update the hidden input with selected genres (as comma-separated values)
+                genresInput.value = selectedGenres.join(',');
+
+                // Update the button text to show how many genres are selected
+                if (selectedGenres.length === 0) {
+                    genreDropdownBtn.textContent = 'Select Genres';
+                } else if (selectedGenres.length === 1) {
+                    genreDropdownBtn.textContent = `${selectedGenres[0]}`;
+                } else {
+                    genreDropdownBtn.textContent = `${selectedGenres.length} genres selected`;
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

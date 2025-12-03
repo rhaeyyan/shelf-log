@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-search me-2"></i>Search Your Library</h2>
+    <a href="/" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Library
+    </a>
+</div>
+
+<!-- Search Form with Sort Options -->
+<div class="card p-4 shadow-sm mb-4">
+    <form method="GET" action="{{ url_for('search_books_page') }}" class="row g-3">
+        <div class="col-md-6">
+            <input type="text" name="q" class="form-control" placeholder="Search in your library by title or author..." value="{{ request.args.get('q', '') }}">
+        </div>
+        <div class="col-md-3">
+            <select name="sort" class="form-select">
+                <option value="title" {% if request.args.get('sort', 'title') == 'title' %}selected{% endif %}>Sort by Title</option>
+                <option value="author" {% if request.args.get('sort') == 'author' %}selected{% endif %}>Sort by Author</option>
+                <option value="rating" {% if request.args.get('sort') == 'rating' %}selected{% endif %}>Sort by Rating</option>
+                <option value="date" {% if request.args.get('sort') == 'date' %}selected{% endif %}>Sort by Date Added</option>
+                <option value="status" {% if request.args.get('sort') == 'status' %}selected{% endif %}>Sort by Status</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">Search Library</button>
+        </div>
+    </form>
+</div>
+
+<!-- Search Results -->
+{% if books %}
+<div class="row">
+    {% for book in books %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 book-result">
+            {% if book.cover_image %}
+                <img src="{{ book.cover_image }}" class="card-img-top" alt="Cover for {{ book.title }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-book fa-3x text-muted"></i>
+                </div>
+            {% endif %}
+
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ book.title[:50] }}{% if book.title|length > 50 %}...{% endif %}</h5>
+                <p class="card-text"><strong>Author:</strong> {{ book.author[:30] }}{% if book.author|length > 30 %}...{% endif %}</p>
+
+                <div class="mb-2">
+                    <span class="badge bg-secondary">{{ book.format }}</span>
+                    <span class="status-badge
+                        {% if book.status == 'To Read' %}bg-warning text-dark
+                        {% elif book.status == 'Reading' %}bg-info text-dark
+                        {% elif book.status == 'Finished' %}bg-success text-white
+                        {% endif %} ms-1">
+                        {{ book.status }}
+                    </span>
+                </div>
+
+                <div class="rating-container mb-2">
+                    <div class="rating-stars">
+                        {% for i in range(book.rating) %}★{% endfor %}
+                        {% for i in range(5 - book.rating) %}☆{% endfor %}
+                    </div>
+                    <small class="text-muted">({{ book.rating }}/5)</small>
+                </div>
+
+                {% if book.category and book.category != 'General' %}
+                <p class="card-text"><small class="text-muted">Category: {{ book.category }}</small></p>
+                {% endif %}
+
+                {% if book.total_pages > 0 %}
+                <p class="card-text"><small class="text-muted">Pages: {{ book.pages_read }}/{{ book.total_pages }}</small></p>
+                {% endif %}
+
+                {% if book.notes %}
+                <p class="card-text flex-grow-1"><small class="text-muted">{{ book.notes[:80] }}{% if book.notes|length > 80 %}...{% endif %}</small></p>
+                {% endif %}
+
+                <div class="mt-auto d-grid gap-2">
+                    <a href="/update/{{ book.id }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                    <a href="/delete/{{ book.id }}" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-trash me-1"></i>Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% elif request.args.get('q') %}
+<div class="text-center py-5">
+    <i class="fas fa-book-open fa-5x text-muted mb-3"></i>
+    <h4 class="text-muted">No books found</h4>
+    <p class="text-muted">No books in your library match "{{ request.args.get('q') }}". Try a different search term.</p>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-search fa-5x text-muted mb-3"></i>
+    <h4 class="text-muted">Enter a search term</h4>
+    <p class="text-muted">Search your library by book title or author name</p>
+</div>
+{% endif %}
+
+{% endblock %}

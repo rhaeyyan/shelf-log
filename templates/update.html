@@ -1,71 +1,159 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card p-4 shadow-sm">
-   <h4>Edit Book</h4>
-   <form method="POST">
-       <div class="mb-3">
-           <label>Title</label>
-           <input type="text" name="title" class="form-control" value="{{ book.title }}">
-       </div>
-       <div class="mb-3">
-           <label>Author</label>
-           <input type="text" name="author" class="form-control" value="{{ book.author }}">
-       </div>
-       <div class="mb-3">
-           <label>Format</label>
-           <select name="format" class="form-select">
-               <option value="Physical" {% if book.format == 'Physical' %}selected{% endif %}>Physical</option>
-               <option value="E-Book" {% if book.format == 'E-Book' %}selected{% endif %}>E-Book</option>
-               <option value="Audiobook" {% if book.format == 'Audiobook' %}selected{% endif %}>Audiobook</option>
-           </select>
-       </div>
-       <div class="mb-3">
-           <label>Status</label>
-           <select name="status" class="form-select">
-               <option value="To Read" {% if book.status == 'To Read' %}selected{% endif %}>To Read</option>
-               <option value="Reading" {% if book.status == 'Reading' %}selected{% endif %}>Reading</option>
-               <option value="Finished" {% if book.status == 'Finished' %}selected{% endif %}>Finished</option>
-           </select>
-       </div>
-       <div class="mb-3">
-           <label>Rating</label>
-           <select name="rating" class="form-select">
-               <option value="0" {% if book.rating == 0 %}selected{% endif %}>☆ No Rating</option>
-               <option value="1" {% if book.rating == 1 %}selected{% endif %}>★ 1 Star</option>
-               <option value="2" {% if book.rating == 2 %}selected{% endif %}>★★ 2 Stars</option>
-               <option value="3" {% if book.rating == 3 %}selected{% endif %}>★★★ 3 Stars</option>
-               <option value="4" {% if book.rating == 4 %}selected{% endif %}>★★★★ 4 Stars</option>
-               <option value="5" {% if book.rating == 5 %}selected{% endif %}>★★★★★ 5 Stars</option>
-           </select>
-       </div>
-       <div class="mb-3">
-           <label>Category</label>
-           <select name="category" class="form-select">
-               <option value="General" {% if book.category == 'General' %}selected{% endif %}>General</option>
-               <option value="Fiction" {% if book.category == 'Fiction' %}selected{% endif %}>Fiction</option>
-               <option value="Non-Fiction" {% if book.category == 'Non-Fiction' %}selected{% endif %}>Non-Fiction</option>
-               <option value="Mystery" {% if book.category == 'Mystery' %}selected{% endif %}>Mystery</option>
-               <option value="Sci-Fi" {% if book.category == 'Sci-Fi' %}selected{% endif %}>Sci-Fi</option>
-               <option value="Fantasy" {% if book.category == 'Fantasy' %}selected{% endif %}>Fantasy</option>
-               <option value="History" {% if book.category == 'History' %}selected{% endif %}>History</option>
-               <option value="Biography" {% if book.category == 'Biography' %}selected{% endif %}>Biography</option>
-               <option value="Self-Help" {% if book.category == 'Self-Help' %}selected{% endif %}>Self-Help</option>
-               <option value="Romance" {% if book.category == 'Romance' %}selected{% endif %}>Romance</option>
-               <option value="Manga" {% if book.category == 'Manga' %}selected{% endif %}>Manga</option>
-               <option value="Comics" {% if book.category == 'Comics' %}selected{% endif %}>Comics</option>
-               <option value="Horror" {% if book.category == 'Horror' %}selected{% endif %}>Horror</option>
-               <option value="Thriller" {% if book.category == 'Thriller' %}selected{% endif %}>Thriller</option>
-               <option value="Adventure" {% if book.category == 'Adventure' %}selected{% endif %}>Adventure</option>
-               <option value="Young Adult" {% if book.category == 'Young Adult' %}selected{% endif %}>Young Adult</option>
-               <option value="Children" {% if book.category == 'Children' %}selected{% endif %}>Children</option>
-               <option value="Poetry" {% if book.category == 'Poetry' %}selected{% endif %}>Poetry</option>
-               <option value="Drama" {% if book.category == 'Drama' %}selected{% endif %}>Drama</option>
-               <option value="Action" {% if book.category == 'Action' %}selected{% endif %}>Action</option>
-           </select>
-       </div>
-       <button type="submit" class="btn btn-success">Save Changes</button>
-       <a href="/" class="btn btn-secondary">Cancel</a>
-   </form>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-edit me-2"></i>Edit Book</h2>
+    <a href="/" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Library
+    </a>
 </div>
+
+<form action="/update/{{ book.id }}" method="POST">
+    <div class="card">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Title *</label>
+                    <input type="text" name="title" class="form-control" value="{{ book.title }}" required>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Author *</label>
+                    <input type="text" name="author" class="form-control" value="{{ book.author }}" required>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="To Read" {% if book.status == 'To Read' %}selected{% endif %}>To Read</option>
+                        <option value="Reading" {% if book.status == 'Reading' %}selected{% endif %}>Reading</option>
+                        <option value="Finished" {% if book.status == 'Finished' %}selected{% endif %}>Finished</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label">Format</label>
+                    <select name="format" class="form-select">
+                        <option value="Physical" {% if book.format == 'Physical' %}selected{% endif %}>📖 Physical</option>
+                        <option value="E-Book" {% if book.format == 'E-Book' %}selected{% endif %}>📱 E-Book</option>
+                        <option value="Audiobook" {% if book.format == 'Audiobook' %}selected{% endif %}>🎧 Audiobook</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label">Rating</label>
+                    <select name="rating" class="form-select">
+                        <option value="0" {% if book.rating == 0 %}selected{% endif %}>☆ No Rating</option>
+                        <option value="1" {% if book.rating == 1 %}selected{% endif %}>★ 1 Star</option>
+                        <option value="2" {% if book.rating == 2 %}selected{% endif %}>★★ 2 Stars</option>
+                        <option value="3" {% if book.rating == 3 %}selected{% endif %}>★★★ 3 Stars</option>
+                        <option value="4" {% if book.rating == 4 %}selected{% endif %}>★★★★ 4 Stars</option>
+                        <option value="5" {% if book.rating == 5 %}selected{% endif %}>★★★★★ 5 Stars</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="General" {% if book.category == 'General' %}selected{% endif %}>General</option>
+                        <option value="Fiction" {% if book.category == 'Fiction' %}selected{% endif %}>Fiction</option>
+                        <option value="Non-Fiction" {% if book.category == 'Non-Fiction' %}selected{% endif %}>Non-Fiction</option>
+                        <option value="Mystery" {% if book.category == 'Mystery' %}selected{% endif %}>Mystery</option>
+                        <option value="Sci-Fi" {% if book.category == 'Sci-Fi' %}selected{% endif %}>Sci-Fi</option>
+                        <option value="Fantasy" {% if book.category == 'Fantasy' %}selected{% endif %}>Fantasy</option>
+                        <option value="History" {% if book.category == 'History' %}selected{% endif %}>History</option>
+                        <option value="Biography" {% if book.category == 'Biography' %}selected{% endif %}>Biography</option>
+                        <option value="Self-Help" {% if book.category == 'Self-Help' %}selected{% endif %}>Self-Help</option>
+                        <option value="Romance" {% if book.category == 'Romance' %}selected{% endif %}>Romance</option>
+                        <option value="Manga" {% if book.category == 'Manga' %}selected{% endif %}>Manga</option>
+                        <option value="Comics" {% if book.category == 'Comics' %}selected{% endif %}>Comics</option>
+                        <option value="Horror" {% if book.category == 'Horror' %}selected{% endif %}>Horror</option>
+                        <option value="Thriller" {% if book.category == 'Thriller' %}selected{% endif %}>Thriller</option>
+                        <option value="Adventure" {% if book.category == 'Adventure' %}selected{% endif %}>Adventure</option>
+                        <option value="Young Adult" {% if book.category == 'Young Adult' %}selected{% endif %}>Young Adult</option>
+                        <option value="Children" {% if book.category == 'Children' %}selected{% endif %}>Children</option>
+                        <option value="Poetry" {% if book.category == 'Poetry' %}selected{% endif %}>Poetry</option>
+                        <option value="Drama" {% if book.category == 'Drama' %}selected{% endif %}>Drama</option>
+                        <option value="Action" {% if book.category == 'Action' %}selected{% endif %}>Action</option>
+                    </select>
+                </div>
+
+                <!-- Genres Selection -->
+                <div class="col-12">
+                    <label class="form-label">Genres (Multiple Selection)</label>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="genre-dropdown-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if book.genres %}
+                                {% for genre in book.genres %}
+                                    {{ genre.name }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                Select Genres
+                            {% endif %}
+                        </button>
+                        <div class="dropdown-menu w-100" id="genre-dropdown-menu" style="max-height: 300px; overflow-y: auto;">
+                            <div class="px-3 py-2">
+                                {% for genre_option in ['Fiction', 'Non-Fiction', 'Mystery', 'Sci-Fi', 'Fantasy', 'History', 'Biography', 'Self-Help', 'Romance', 'Manga', 'Comics', 'Horror', 'Thriller', 'Adventure', 'Young Adult', 'Children', 'Poetry', 'Drama', 'Action', 'General'] %}
+                                    <input class="form-check-input me-2" type="checkbox" name="genres" value="{{ genre_option }}" id="genre-{{ loop.index }}"
+                                           {% if book.genres and genre_option in book.genres|map(attribute='name')|list %}checked{% endif %}>
+                                    <label class="form-check-label" for="genre-{{ loop.index }}">{{ genre_option }}</label><br>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <label class="form-label">Total Pages</label>
+                    <input type="number" name="total_pages" class="form-control" value="{{ book.total_pages }}">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label">Pages Read</label>
+                    <input type="number" name="pages_read" class="form-control" value="{{ book.pages_read }}">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Cover Image URL</label>
+                    <input type="url" name="cover_image" class="form-control" value="{{ book.cover_image }}">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Notes/Reviews</label>
+                    <textarea name="notes" class="form-control">{{ book.notes }}</textarea>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100">Update Book</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    // Handle the multi-select genre dropdown functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const genreCheckboxes = document.querySelectorAll('input[name="genres"]');
+        const genreDropdownBtn = document.getElementById('genre-dropdown-btn');
+
+        // Update the button text based on selected genres
+        function updateGenreButton() {
+            const selectedGenres = [];
+            genreCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    selectedGenres.push(checkbox.nextElementSibling.textContent);
+                }
+            });
+
+            if (selectedGenres.length === 0) {
+                genreDropdownBtn.textContent = 'Select Genres';
+            } else if (selectedGenres.length === 1) {
+                genreDropdownBtn.textContent = selectedGenres[0];
+            } else {
+                genreDropdownBtn.textContent = `${selectedGenres.length} genres selected: ${selectedGenres.slice(0, 3).join(', ')}${selectedGenres.length > 3 ? '...' : ''}`;
+            }
+        }
+
+        // Initialize button text
+        updateGenreButton();
+
+        // Add event listeners to update the button text when checkboxes change
+        genreCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateGenreButton);
+        });
+    });
+</script>
 {% endblock %}
