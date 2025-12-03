@@ -28,6 +28,32 @@
                <option value="Finished" {% if book.status == 'Finished' %}selected{% endif %}>Finished</option>
            </select>
        </div>
+       <div class="mb-3">
+           <label>Rating</label>
+           <select name="rating" class="form-select">
+               <option value="0" {% if book.rating == 0 %}selected{% endif %}>☆ No Rating</option>
+               <option value="1" {% if book.rating == 1 %}selected{% endif %}>★ 1 Star</option>
+               <option value="2" {% if book.rating == 2 %}selected{% endif %}>★★ 2 Stars</option>
+               <option value="3" {% if book.rating == 3 %}selected{% endif %}>★★★ 3 Stars</option>
+               <option value="4" {% if book.rating == 4 %}selected{% endif %}>★★★★ 4 Stars</option>
+               <option value="5" {% if book.rating == 5 %}selected{% endif %}>★★★★★ 5 Stars</option>
+           </select>
+       </div>
+       <div class="mb-3">
+           <label>Category</label>
+           <select name="category" class="form-select">
+               <option value="General" {% if book.category == 'General' %}selected{% endif %}>General</option>
+               <option value="Fiction" {% if book.category == 'Fiction' %}selected{% endif %}>Fiction</option>
+               <option value="Non-Fiction" {% if book.category == 'Non-Fiction' %}selected{% endif %}>Non-Fiction</option>
+               <option value="Mystery" {% if book.category == 'Mystery' %}selected{% endif %}>Mystery</option>
+               <option value="Sci-Fi" {% if book.category == 'Sci-Fi' %}selected{% endif %}>Sci-Fi</option>
+               <option value="Fantasy" {% if book.category == 'Fantasy' %}selected{% endif %}>Fantasy</option>
+               <option value="History" {% if book.category == 'History' %}selected{% endif %}>History</option>
+               <option value="Biography" {% if book.category == 'Biography' %}selected{% endif %}>Biography</option>
+               <option value="Self-Help" {% if book.category == 'Self-Help' %}selected{% endif %}>Self-Help</option>
+               <option value="Romance" {% if book.category == 'Romance' %}selected{% endif %}>Romance</option>
+           </select>
+       </div>
        <button type="submit" class="btn btn-success">Save Changes</button>
        <a href="/" class="btn btn-secondary">Cancel</a>
    </form>

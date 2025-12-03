@@ -1,17 +1,32 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<!-- SEARCH BAR -->
+<div class="card p-4 shadow-sm mb-4">
+   <form method="GET" class="row g-3">
+       <div class="col-md-8">
+           <input type="text" name="search" class="form-control" placeholder="Search by title or author..." value="{{ search_query }}">
+       </div>
+       <div class="col-md-2">
+           <button type="submit" class="btn btn-outline-primary w-100">Search</button>
+       </div>
+       <div class="col-md-2">
+           <a href="/" class="btn btn-outline-secondary w-100">Clear</a>
+       </div>
+   </form>
+</div>
+
 <!-- ADD NEW ITEM CARD -->
 <div class="card p-4 shadow-sm mb-5">
    <h4>Add New Item</h4>
    <form action="/add" method="POST" class="row g-3">
-       <div class="col-md-4">
+       <div class="col-md-3">
            <input type="text" name="title" class="form-control" placeholder="Title" required>
        </div>
-       <div class="col-md-3">
+       <div class="col-md-2">
            <input type="text" name="author" class="form-control" placeholder="Author" required>
        </div>
-       <div class="col-md-3">
+       <div class="col-md-2">
            <select name="format" class="form-select">
                <option value="Physical">📖 Physical Book</option>
                <option value="E-Book">📱 E-Book</option>
@@ -19,6 +34,30 @@
            </select>
        </div>
        <div class="col-md-2">
+           <select name="rating" class="form-select">
+               <option value="0">☆ No Rating</option>
+               <option value="1">★ 1 Star</option>
+               <option value="2">★★ 2 Stars</option>
+               <option value="3">★★★ 3 Stars</option>
+               <option value="4">★★★★ 4 Stars</option>
+               <option value="5">★★★★★ 5 Stars</option>
+           </select>
+       </div>
+       <div class="col-md-2">
+           <select name="category" class="form-select">
+               <option value="General">General</option>
+               <option value="Fiction">Fiction</option>
+               <option value="Non-Fiction">Non-Fiction</option>
+               <option value="Mystery">Mystery</option>
+               <option value="Sci-Fi">Sci-Fi</option>
+               <option value="Fantasy">Fantasy</option>
+               <option value="History">History</option>
+               <option value="Biography">Biography</option>
+               <option value="Self-Help">Self-Help</option>
+               <option value="Romance">Romance</option>
+           </select>
+       </div>
+       <div class="col-md-1">
            <button type="submit" class="btn btn-primary w-100">Add</button>
        </div>
    </form>
@@ -36,7 +75,12 @@
                {% endif %}
                {{ book.title }}
            </h5>
-           <small class="text-muted">by {{ book.author }} | Status: {{ book.status }}</small>
+           <small class="text-muted">
+               by {{ book.author }} |
+               Status: {{ book.status }} |
+               {% for i in range(book.rating) %}★{% endfor %}{% for i in range(5 - book.rating) %}☆{% endfor %} |
+               Category: {{ book.category }}
+           </small>
        </div>
        <div>
            <a href="/update/{{ book.id }}" class="btn btn-sm btn-outline-secondary">Edit</a>
