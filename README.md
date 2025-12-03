@@ -2,6 +2,8 @@
 
 ShelfLog is a comprehensive web application built with Python Flask that allows users to track physical books, e-books, and audiobooks in their personal library. The application features a modern UI with responsive design, advanced search capabilities, and integration with external book databases.
 
+![alt text](image.png)
+
 ## Technologies and Libraries Used
 
 ### Backend Technologies
