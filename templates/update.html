@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card p-4 shadow-sm">
+   <h4>Edit Book</h4>
+   <form method="POST">
+       <div class="mb-3">
+           <label>Title</label>
+           <input type="text" name="title" class="form-control" value="{{ book.title }}">
+       </div>
+       <div class="mb-3">
+           <label>Author</label>
+           <input type="text" name="author" class="form-control" value="{{ book.author }}">
+       </div>
+       <div class="mb-3">
+           <label>Format</label>
+           <select name="format" class="form-select">
+               <option value="Physical" {% if book.format == 'Physical' %}selected{% endif %}>Physical</option>
+               <option value="E-Book" {% if book.format == 'E-Book' %}selected{% endif %}>E-Book</option>
+               <option value="Audiobook" {% if book.format == 'Audiobook' %}selected{% endif %}>Audiobook</option>
+           </select>
+       </div>
+       <div class="mb-3">
+           <label>Status</label>
+           <select name="status" class="form-select">
+               <option value="To Read" {% if book.status == 'To Read' %}selected{% endif %}>To Read</option>
+               <option value="Reading" {% if book.status == 'Reading' %}selected{% endif %}>Reading</option>
+               <option value="Finished" {% if book.status == 'Finished' %}selected{% endif %}>Finished</option>
+           </select>
+       </div>
+       <button type="submit" class="btn btn-success">Save Changes</button>
+       <a href="/" class="btn btn-secondary">Cancel</a>
+   </form>
+</div>
+{% endblock %}
